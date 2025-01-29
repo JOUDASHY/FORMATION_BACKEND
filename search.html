@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+  <style>
+    .header-bar {
+    display: flex;
+    align-items: center; /* Aligne les items au centre verticalement */
+    gap: 10px; /* Ajoute un espace entre le bouton et l'input */
+}
+
+.bouton-ajouter {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px; /* Ajuste le padding du bouton */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    height: 42px; /* Définit la même hauteur que l'input */
+    display: flex;
+    align-items: center; /* Centre le texte verticalement dans le bouton */
+    justify-content: center;
+}
+
+.bouton-ajouter:hover {
+    background-color: #218838;
+}
+
+.search-bar {
+    position: relative;
+    flex-grow: 1; /* Permet à l'input de prendre tout l'espace disponible */
+}
+
+.search-bar input {
+    width: 100%;
+    height: 42px; /* Même hauteur que le bouton */
+    padding: 0 40px 0 10px; /* Ajoute un espace pour l'icône de recherche */
+    border: 2px solid #007bff;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.search-bar i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: #007bff;
+    pointer-events: none;
+}
+
+  </style>
+</head>
+<body>
+    <div class="header-bar">
+        <button class="bouton-ajouter">+ Ajouter une formation</button>
+        <div class="search-bar">
+            <input type="text" placeholder="Rechercher une formation" />
+            <i class="fas fa-search"></i>
+        </div>
+    </div>
+    
+</div>
+</body>
+</html>

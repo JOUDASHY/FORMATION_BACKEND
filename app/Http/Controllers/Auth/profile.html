@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Card</title>
+    <link rel="stylesheet" href="styles.css">
+<style> 
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.profile-card {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    width: 700px;
+}
+
+.profile-info {
+    display: flex;
+    align-items: center;
+}
+
+.profile-image {
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    margin-right: 15px;
+}
+
+.profile-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-name {
+    font-size: 18px;
+    color: #2E384D;
+    margin: 0;
+    font-weight: bold;
+}
+
+.profile-title {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 0;
+}
+
+.profile-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.action-link {
+    text-decoration: none;
+    color: #2E384D;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.action-link:hover {
+    background-color: #f1f1f1;
+}
+
+.icon-box::before {
+    content: "📦";
+}
+
+.icon-mail::before {
+    content: "✉️";
+}
+
+.icon-settings::before {
+    content: "⚙️";
+}
+
+</style>
+
+</head>
+<body>
+    <div class="profile-card">
+        <div class="profile-info">
+            <img src="https://via.placeholder.com/60" alt="Profile Image" class="profile-image">
+            <div class="profile-details">
+                <h2 class="profile-name">Sayo Kravits</h2>
+                <p class="profile-title">Public Relations</p>
+            </div>
+        </div>
+        <div class="profile-actions">
+            <a href="#" class="action-link"> <i class="icon-box"></i> App</a>
+            <a href="#" class="action-link"> <i class="icon-mail"></i> Messages</a>
+            <a href="#" class="action-link"> <i class="icon-settings"></i> Settings</a>
+        </div>
+    </div>
+</body>
+</html>

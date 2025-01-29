@@ -1,0 +1,65 @@
+import React, { useEffect, useRef, useState } from 'react';
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:5000');
+
+const VideoRoom = ({ roomId, isTeacher }) => {
+  const [isStreaming, setIsStreaming] = useState(false);
+  const videoRef = useRef(null);
+  const userVideoRef = useRef(null);
+
+  useEffect(() => {
+    // Se connecter à la salle
+    socket.emit('joinRoom', roomId);
+
+    // Écouter les flux vidéo envoyés par le professeur
+    socket.on('receiveVideo', (videoStream) => {
+      if (videoRef.current) {
+        videoRef.current.srcObject = videoStream;
+      }
+    });
+
+    return () => {
+      socket.off('receiveVideo');
+    };
+  }, [roomId]);
+
+  const startVideo = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true,
+    });
+
+    if (isTeacher) {
+      // Si c'est le professeur, émettre le flux vidéo
+      socket.emit('videoStream', roomId, stream);
+    }
+
+    if (userVideoRef.current) {
+      userVideoRef.current.srcObject = stream;
+    }
+    setIsStreaming(true);
+  };
+
+  return (
+    <div>
+      <h1>{isTeacher ? 'Professeur' : 'Élève'}</h1>
+      <div>
+        {isTeacher ? (
+          <button onClick={startVideo}>Démarrer la conférence</button>
+        ) : (
+          <video ref={videoRef} autoPlay />
+        )}
+        {!isTeacher && (
+          <video
+            ref={userVideoRef}
+            autoPlay
+            style={{ width: '300px', height: 'auto' }}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default VideoRoom;
