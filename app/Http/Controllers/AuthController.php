@@ -71,14 +71,15 @@ class AuthController extends Controller
         $token = Auth::login($user);
         return $this->createNewToken($token);
     }
-    public function logout()
-    {
-        Auth::logout();
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Successfully logged out',
-        ]);
+    public function logout(Request $request)
+{
+    try {
+        JWTAuth::invalidate(JWTAuth::getToken()); // Invalider le token JWT
+        return response()->json(['message' => 'Déconnexion réussie']);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Impossible de se déconnecter'], 500);
     }
+}
     public function me()
     {
         return response()->json([
