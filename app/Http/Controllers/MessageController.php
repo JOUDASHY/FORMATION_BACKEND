@@ -115,27 +115,66 @@ public function markAsRead(Request $request, $id)
     /**
      * Récupérer la liste des dernières conversations.
      */
+
+
+
+    //  POur mysql
+    // public function getConversations(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'user_id' => 'required|exists:users,id',
+    //     ]);
+
+    //     $userId = $validated['user_id'];
+
+    //     $subquery = DB::table('messages')
+    //         ->selectRaw('MAX(id) as max_id')
+    //         ->where('sender_id', $userId)
+    //         ->orWhere('receiver_id', $userId)
+    //         ->groupByRaw('LEAST(sender_id, receiver_id), GREATEST(sender_id, receiver_id)');
+
+    //     $conversations = Message::select('messages.*')
+    //         ->joinSub($subquery, 'subquery', 'messages.id', '=', 'subquery.max_id')
+    //         ->orderBy('created_at', 'desc')
+    //         ->get();
+
+    //     return response()->json($conversations, 200);
+    // }
+
     public function getConversations(Request $request)
-    {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-        ]);
+{
+    $validated = $request->validate([
+        'user_id' => 'required|exists:users,id',
+    ]);
 
-        $userId = $validated['user_id'];
+    $userId = $validated['user_id'];
 
-        $subquery = DB::table('messages')
-            ->selectRaw('MAX(id) as max_id')
-            ->where('sender_id', $userId)
-            ->orWhere('receiver_id', $userId)
-            ->groupByRaw('LEAST(sender_id, receiver_id), GREATEST(sender_id, receiver_id)');
+    // Utilisation de CASE pour simuler LEAST et GREATEST
+    $subquery = DB::table('messages')
+        ->selectRaw('MAX(id) as max_id')
+        ->where(function ($query) use ($userId) {
+            $query->where('sender_id', $userId)
+                  ->orWhere('receiver_id', $userId);
+        })
+        ->groupByRaw('
+            CASE 
+                WHEN sender_id < receiver_id THEN sender_id 
+                ELSE receiver_id 
+            END, 
+            CASE 
+                WHEN sender_id > receiver_id THEN sender_id 
+                ELSE receiver_id 
+            END
+        ');
 
-        $conversations = Message::select('messages.*')
-            ->joinSub($subquery, 'subquery', 'messages.id', '=', 'subquery.max_id')
-            ->orderBy('created_at', 'desc')
-            ->get();
+    $conversations = Message::select('messages.*')
+        ->joinSub($subquery, 'subquery', 'messages.id', '=', 'subquery.max_id')
+        ->orderBy('created_at', 'desc')
+        ->get();
 
-        return response()->json($conversations, 200);
-    }
+    return response()->json($conversations, 200);
+}
+
 
 
     public function CountConversationsNotRead(Request $request){
