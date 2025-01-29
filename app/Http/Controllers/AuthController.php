@@ -65,7 +65,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'sex' => $request->sex,
             'email' => $request->email,
-            'type' => 'admin',  // Défini ici par défaut comme "apprenant"
+            'type' => 'apprenant',  // Défini ici par défaut comme "apprenant"
             'password' => Hash::make($request->password),
         ]);
         $token = Auth::login($user);
