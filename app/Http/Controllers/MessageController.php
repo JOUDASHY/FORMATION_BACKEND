@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\Config;
 
 class MessageController extends Controller
 {
@@ -45,21 +45,23 @@ class MessageController extends Controller
     
         // Créer un nouveau message
         $message = Message::create([
-            'sender_id' => $validated['sender_id'],
+            'sender_id'   => $validated['sender_id'],
             'receiver_id' => $validated['receiver_id'],
-            'message' => $validated['message'],
-            'attachment' => $attachmentPath,
+            'message'     => $validated['message'],
+            'attachment'  => $attachmentPath ?? null, // Éviter une erreur si non défini
         ]);
-    
+        
+        // Récupérer l'URL du WebSocket depuis .env
+        $socketUrl = config('app.socket_msg_url', 'http://localhost:3000');
+        
         // Envoyer le message au serveur WebSocket (si nécessaire)
-        Http::post('http://localhost:3000/broadcast', [
-            'sender_id' => $validated['sender_id'],
-            'receiver_id' => $validated['receiver_id'],
-            'message' => $validated['message'],
-            'attachment' => $attachmentPath,
-            'created_at' => $message->created_at,
+        Http::post("$socketUrl/broadcast", [
+            'sender_id'   => $message->sender_id,
+            'receiver_id' => $message->receiver_id,
+            'message'     => $message->message,
+            'attachment'  => $message->attachment,
+            'created_at'  => $message->created_at,
         ]);
-    
         return response()->json([
             'status' => 'Message sent',
             'message' => $message,
@@ -118,30 +120,15 @@ public function markAsRead(Request $request, $id)
 
 
 
-    //  POur mysql
-    // public function getConversations(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         'user_id' => 'required|exists:users,id',
-    //     ]);
 
-    //     $userId = $validated['user_id'];
 
-    //     $subquery = DB::table('messages')
-    //         ->selectRaw('MAX(id) as max_id')
-    //         ->where('sender_id', $userId)
-    //         ->orWhere('receiver_id', $userId)
-    //         ->groupByRaw('LEAST(sender_id, receiver_id), GREATEST(sender_id, receiver_id)');
 
-    //     $conversations = Message::select('messages.*')
-    //         ->joinSub($subquery, 'subquery', 'messages.id', '=', 'subquery.max_id')
-    //         ->orderBy('created_at', 'desc')
-    //         ->get();
 
-    //     return response()->json($conversations, 200);
-    // }
 
-    public function getConversations(Request $request)
+/**
+     * pOUR LE SQLITE
+     */
+public function getConversations(Request $request)
 {
     $validated = $request->validate([
         'user_id' => 'required|exists:users,id',
@@ -149,63 +136,158 @@ public function markAsRead(Request $request, $id)
 
     $userId = $validated['user_id'];
 
-    // Utilisation de CASE pour simuler LEAST et GREATEST
+    // Création d'une clé unique pour identifier une conversation
     $subquery = DB::table('messages')
         ->selectRaw('MAX(id) as max_id')
-        ->where(function ($query) use ($userId) {
-            $query->where('sender_id', $userId)
-                  ->orWhere('receiver_id', $userId);
-        })
-        ->groupByRaw('
+        ->whereRaw('(sender_id = ? OR receiver_id = ?)', [$userId, $userId])
+        ->groupBy(DB::raw("
             CASE 
-                WHEN sender_id < receiver_id THEN sender_id 
-                ELSE receiver_id 
-            END, 
-            CASE 
-                WHEN sender_id > receiver_id THEN sender_id 
-                ELSE receiver_id 
+                WHEN sender_id < receiver_id THEN sender_id || '-' || receiver_id 
+                ELSE receiver_id || '-' || sender_id 
             END
-        ');
+        "));
 
-    $conversations = Message::select('messages.*')
-        ->joinSub($subquery, 'subquery', 'messages.id', '=', 'subquery.max_id')
+    // Récupération des messages correspondants
+    $conversations = Message::whereIn('id', $subquery->pluck('max_id'))
         ->orderBy('created_at', 'desc')
         ->get();
 
     return response()->json($conversations, 200);
 }
 
+public function CountConversationsNotRead(Request $request)
+{
+    $validated = $request->validate([
+        'user_id' => 'required|exists:users,id',
+    ]);
 
+    $userId = $validated['user_id'];
 
-    public function CountConversationsNotRead(Request $request){
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-        ]);
-    
-        $userId = $validated['user_id'];
-    
-        // Sous-requête pour récupérer l'ID du dernier message de chaque conversation
-        $subquery = DB::table('messages')
-            ->selectRaw('MAX(id) as max_id')
-            ->where('sender_id', $userId)
-            ->orWhere('receiver_id', $userId)
-            ->groupByRaw('LEAST(sender_id, receiver_id), GREATEST(sender_id, receiver_id)');
-    
-        // Récupération des derniers messages de chaque conversation
-        $conversations = Message::select('messages.*')
-            ->joinSub($subquery, 'subquery', 'messages.id', '=', 'subquery.max_id')
-            ->orderBy('created_at', 'desc')
-            ->get();
-        $unreadCount = $conversations->where('receiver_id', $userId)
+    // Création d'une clé unique pour identifier une conversation
+    $subquery = DB::table('messages')
+        ->selectRaw('MAX(id) as max_id')
+        ->whereRaw('(sender_id = ? OR receiver_id = ?)', [$userId, $userId])
+        ->groupBy(DB::raw("
+            CASE 
+                WHEN sender_id < receiver_id THEN sender_id || '-' || receiver_id 
+                ELSE receiver_id || '-' || sender_id 
+            END
+        "));
+
+    // Récupération des derniers messages de chaque conversation
+    $conversations = Message::whereIn('id', $subquery->pluck('max_id'))
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    // Comptage des messages non lus
+    $unreadCount = $conversations->where('receiver_id', $userId)
         ->where('is_read', false)
         ->count();
 
     return response()->json([
-       
         'unreadCount' => $unreadCount,
     ], 200);
+}
 
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+     * pOUR LE MYSQL
+     */
+// public function getConversations(Request $request)
+// {
+//     $validated = $request->validate([
+//         'user_id' => 'required|exists:users,id',
+//     ]);
+
+//     $userId = $validated['user_id'];
+
+//     $subquery = DB::table('messages')
+//         ->selectRaw('MAX(id) as max_id')
+//         ->where('sender_id', $userId)
+//         ->orWhere('receiver_id', $userId)
+//         ->groupByRaw('LEAST(sender_id, receiver_id), GREATEST(sender_id, receiver_id)');
+
+//     $conversations = Message::select('messages.*')
+//         ->joinSub($subquery, 'subquery', 'messages.id', '=', 'subquery.max_id')
+//         ->orderBy('created_at', 'desc')
+//         ->get();
+
+//     return response()->json($conversations, 200);
+// }
+
+
+// public function CountConversationsNotRead(Request $request){
+//     $validated = $request->validate([
+//         'user_id' => 'required|exists:users,id',
+//     ]);
+
+//     $userId = $validated['user_id'];
+
+//     // Sous-requête pour récupérer l'ID du dernier message de chaque conversation
+//     $subquery = DB::table('messages')
+//         ->selectRaw('MAX(id) as max_id')
+//         ->where('sender_id', $userId)
+//         ->orWhere('receiver_id', $userId)
+//         ->groupByRaw('LEAST(sender_id, receiver_id), GREATEST(sender_id, receiver_id)');
+
+//     // Récupération des derniers messages de chaque conversation
+//     $conversations = Message::select('messages.*')
+//         ->joinSub($subquery, 'subquery', 'messages.id', '=', 'subquery.max_id')
+//         ->orderBy('created_at', 'desc')
+//         ->get();
+//     $unreadCount = $conversations->where('receiver_id', $userId)
+//     ->where('is_read', false)
+//     ->count();
+
+// return response()->json([
+   
+//     'unreadCount' => $unreadCount,
+// ], 200);
+
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Envoyer un message à tous les apprenants d'une formation.
