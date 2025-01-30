@@ -53,7 +53,7 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed', // Validation avec confirmation du mot de passe
+            'password' => 'required|string|min:6', // Validation avec confirmation du mot de passe
             'sex' => 'required|string',
         ]);
     
