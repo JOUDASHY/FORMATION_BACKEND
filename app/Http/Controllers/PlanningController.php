@@ -10,6 +10,7 @@ use App\Models\Formation;
 use Illuminate\Http\Request;
 use App\Events\NewPlanningEvent;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class PlanningController extends Controller
 {
@@ -43,7 +44,7 @@ class PlanningController extends Controller
 
     public function Planning_apprenant()
     {
-        $userId = auth()->user()->id;
+        $userId = Auth::guard('api')->user();
         $plannings = Planning::whereHas('courses.module.formation.inscriptions', function ($query) use ($userId) {
             $query->where('user_id', $userId); 
         })
@@ -54,7 +55,7 @@ class PlanningController extends Controller
 
     public function Planning_formateur()
     {
-        $userId = auth()->user()->id;
+        $userId = Auth::guard('api')->user();
     
         // Récupérer la date d'aujourd'hui
         $today = now()->toDateString();  // Format 'YYYY-MM-DD'

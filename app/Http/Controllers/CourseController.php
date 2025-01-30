@@ -6,6 +6,7 @@ use App\Models\Course;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log; // Import Log facade for logging
+use Illuminate\Support\Facades\Auth;
 
 class CourseController extends Controller
 {
@@ -16,7 +17,7 @@ class CourseController extends Controller
     public function coursesByFormation_formateur($formationId)
     {
         // Récupérer l'ID de l'utilisateur connecté
-        $userId = auth()->user()->id;
+        $userId = Auth::guard('api')->user();
     
         // Récupérer les modules associés à la formation donnée
         $moduleIds = \App\Models\Module::where('formation_id', $formationId)->pluck('id');
@@ -67,7 +68,7 @@ class CourseController extends Controller
 
     public function getCoursesByTeacher()
 {
-    $userId = auth()->user()->id;
+    $userId = Auth::guard('api')->user();
 
     // Recherche des cours où le formateur est assigné
     $courses = Course::where('user_id', $userId)

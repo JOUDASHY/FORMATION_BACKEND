@@ -37,49 +37,54 @@ class AuthController extends Controller
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
-        $user = User::where('email', $request->email)->first();
-        if (!$user) {
+    
+        if (!$token = Auth::guard('api')->attempt($request->only('email', 'password'))) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Ce compte n’existe pas. Veuillez vérifier vos informations ou vous inscrire.',
-            ], 404);
-        }
-        $credentials = $request->only('email', 'password');
-        if (!Auth::attempt($credentials)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Mot de passe incorrect. Veuillez réessayer.',
+                'message' => 'Identifiants incorrects',
             ], 401);
         }
-        $token = Auth::attempt($credentials);
+    
         return $this->createNewToken($token);
     }
-    public function register(Request $request){
+    public function register(Request $request)
+    {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:6|confirmed', // Ajout de confirmation du mot de passe
             'sex' => 'required|string',
         ]);
+    
         $user = User::create([
             'name' => $request->name,
             'sex' => $request->sex,
             'email' => $request->email,
-            'type' => 'apprenant',  // Défini ici par défaut comme "apprenant"
+            'type' => 'apprenant',
             'password' => Hash::make($request->password),
         ]);
-        $token = Auth::login($user);
-        return $this->createNewToken($token);
+    
+        // Générer un token JWT pour l'utilisateur
+        $token = Auth::guard('api')->login($user);
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Inscription réussie',
+            'user' => $user,
+            'token' => $token
+        ]);
     }
-    public function logout(Request $request)
-{
-    try {
-        JWTAuth::invalidate(JWTAuth::getToken()); // Invalider le token JWT
-        return response()->json(['message' => 'Déconnexion réussie']);
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Impossible de se déconnecter'], 500);
+    
+    public function logout()
+    {
+        try {
+            Auth::guard('api')->logout(); // Invalider le token JWT
+            return response()->json(['message' => 'Déconnexion réussie']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Impossible de se déconnecter'], 500);
+        }
     }
-}
+    
     public function me()
     {
         return response()->json([
@@ -97,16 +102,16 @@ class AuthController extends Controller
 
         return $this->createNewToken(Auth::refresh());
     }
-
-    protected function createNewToken($token){
+    protected function createNewToken($token)
+    {
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => Auth::factory()->getTTL()*60,
-            'user'=>Auth::user()
+            'expires_in' => auth('api')->factory()->getTTL() * 60 * 24 * 7, // 7 jours (604800 secondes)
+            'user' => auth('api')->user(),
         ]);
     }
-
+    
     public function sendResetLink(Request $request)
     {
         $request->validate(['email' => 'required|email']);

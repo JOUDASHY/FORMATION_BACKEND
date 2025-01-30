@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Auth;
 
 use App\Models\Notification;
 use Illuminate\Http\Request;
@@ -9,7 +10,8 @@ class NotificationController extends Controller
 {
     public function getUnreadNotifications()
     {
-        $userId =  auth()->user()->id;
+        $userId = Auth::guard('api')->user();
+
         $notifications = Notification::where('user_id', $userId)
                                      ->where('is_read', false)
                                      ->orderBy('created_at', 'desc')

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Certification;
 use App\Events\NewCertificationEvent;
 use App\Models\Inscription;
+use Illuminate\Support\Facades\Auth;
 
 class CertificationController extends Controller
 {
@@ -48,7 +49,7 @@ class CertificationController extends Controller
 
     public function indexForUser()
 {
-    $userId = auth()->user()->id;
+    $userId = Auth::guard('api')->user();
 
     // Récupérer uniquement les certifications liées à l'utilisateur avec 'user_id'
     $certifications = Certification::with('users', 'formations.modules')

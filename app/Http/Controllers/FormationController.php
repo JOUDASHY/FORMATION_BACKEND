@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Events\NewFormationEvent;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class FormationController extends Controller
 {
@@ -40,7 +41,7 @@ class FormationController extends Controller
 
     public function Formation_apprenant()
     {
-        $userId = auth()->user()->id; // Obtenez l'ID de l'utilisateur connecté
+        $userId = Auth::guard('api')->user(); // Obtenez l'ID de l'utilisateur connecté
     
         // Récupérer les formations dont l'utilisateur est inscrit et où l'inscription est payée
         $formations = Formation::whereHas('inscriptions', function ($query) use ($userId) {
@@ -58,7 +59,7 @@ class FormationController extends Controller
     public function Formation_formateur()
     {
         // Récupérer l'ID de l'utilisateur connecté
-        $userId = auth()->user()->id;
+        $userId = Auth::guard('api')->user();
     
         // Récupérer les cours associés à l'utilisateur
         $courses = \App\Models\Course::where('user_id', $userId)->get();

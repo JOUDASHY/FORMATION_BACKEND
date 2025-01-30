@@ -10,6 +10,7 @@ use App\Models\Formation; // Pour récupérer le coût de la formation dans la m
 // use App\Models\Paiement;
 // use Illuminate\Http\Request;
 // ...
+use Illuminate\Support\Facades\Auth;
 
 
 
@@ -36,7 +37,7 @@ class InscriptionController extends Controller
 
      public function apprenant_inscription()
      {
-         $userId = auth()->user()->id;
+         $userId = Auth::guard('api')->user();
  
          $inscriptions = Inscription::where("user_id",$userId)->with( 'formations')->get(); 
            
