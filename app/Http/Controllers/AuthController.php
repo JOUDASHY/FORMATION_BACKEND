@@ -49,13 +49,15 @@ class AuthController extends Controller
     }
     public function register(Request $request)
     {
+        // Validation des champs
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6', // Ajout de confirmation du mot de passe
+            'password' => 'required|string|min:6|confirmed', // Validation avec confirmation du mot de passe
             'sex' => 'required|string',
         ]);
     
+        // Création de l'utilisateur
         $user = User::create([
             'name' => $request->name,
             'sex' => $request->sex,
@@ -67,13 +69,10 @@ class AuthController extends Controller
         // Générer un token JWT pour l'utilisateur
         $token = Auth::guard('api')->login($user);
     
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Inscription réussie',
-            'user' => $user,
-            'token' => $token
-        ]);
+        // Appeler la méthode createNewToken pour générer la réponse avec le token
+        return $this->createNewToken($token);
     }
+    
     
     public function logout()
     {
@@ -85,23 +84,7 @@ class AuthController extends Controller
         }
     }
     
-    public function me()
-    {
-        return response()->json([
-            'status' => 'success',
-            'user' => Auth::user(),
-        ]);
-    }
-    public function userProfile(){
-        return response()->json([
-            Auth::user()
-        ]);
-    }
-    public function refresh()
-    {
-
-        return $this->createNewToken(Auth::refresh());
-    }
+   
     protected function createNewToken($token)
     {
         return response()->json([
