@@ -94,7 +94,24 @@ class AuthController extends Controller
             'user' => auth('api')->user(),
         ]);
     }
-    
+    public function me()
+    {
+        return response()->json([
+            'status' => 'success',
+            'user' => Auth::user(),
+        ]);
+    }
+    public function userProfile(){
+        return response()->json([
+            Auth::user()
+        ]);
+    }
+    public function refresh()
+    {
+
+        return $this->createNewToken(Auth::refresh());
+    }
+
     public function sendResetLink(Request $request)
     {
         $request->validate(['email' => 'required|email']);
