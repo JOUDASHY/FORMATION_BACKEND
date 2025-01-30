@@ -85,7 +85,7 @@ public function show($formation_id, Request $request)
    
     public function apprenant_evaluation()
     {
-        $userId = Auth::id();
+        $userId = Auth::guard('api')->user();
 
         $evaluations = Evaluation::where('user_id', $userId)
            

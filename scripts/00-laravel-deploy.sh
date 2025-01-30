@@ -11,5 +11,9 @@ echo "Caching routes..."
 php artisan route:cache
 
 # Créer le lien symbolique pour le stockage
+echo "Migration running..."
+php artisan migrate --force
+
+# Créer le lien symbolique pour le stockage
 echo "Creating storage symlink..."
 php artisan storage:link
