@@ -90,7 +90,8 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth('api')->factory()->getTTL() * 60 * 24 * 7, // 7 jours (604800 secondes)
+'expires_in' => auth('api')->factory()->setTTL(7 * 24 * 60)->getTTL() * 60, // 7 jours en secondes
+
             'user' => auth('api')->user(),
         ]);
     }
