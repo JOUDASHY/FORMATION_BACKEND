@@ -44,7 +44,7 @@ class PlanningController extends Controller
 
     public function Planning_apprenant()
     {
-        $userId = Auth::guard('api')->user();
+        $userId = Auth::guard('api')->id();
         $plannings = Planning::whereHas('courses.module.formation.inscriptions', function ($query) use ($userId) {
             $query->where('user_id', $userId); 
         })
@@ -55,7 +55,7 @@ class PlanningController extends Controller
 
     public function Planning_formateur()
     {
-        $userId = Auth::guard('api')->user();
+        $userId = Auth::guard('api')->id();
     
         // Récupérer la date d'aujourd'hui
         $today = now()->toDateString();  // Format 'YYYY-MM-DD'

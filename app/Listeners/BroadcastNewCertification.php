@@ -22,11 +22,11 @@ class BroadcastNewCertification
 
             // Envoyer une requête HTTP au serveur WebSocket Node.js
         // Envoi de la requête au serveur WebSocket
-$response = Http::post('http://localhost:6001/broadcast', [
-    'userId' => $apprenant->id,
-    'message' => "Vous serez certifiée de la formation {$event->formationTitle} le {$event->obtention_date}",
-
-]);
+        $response = Http::post(config('app.socket_notif_url', 'http://localhost:3000') . '/broadcast', [
+            'userId' => $apprenant->id,
+            'message' => "Vous serez certifié(e) de la formation {$event->formationTitle} le {$event->obtention_date}",
+        ]);
+        
 
 Log::info("Réponse du serveur WebSocket pour l'utilisateur {$apprenant->id}: " . $response->body());
 

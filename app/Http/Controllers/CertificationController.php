@@ -49,7 +49,7 @@ class CertificationController extends Controller
 
     public function indexForUser()
 {
-    $userId = Auth::guard('api')->user();
+    $userId = Auth::guard('api')->id();
 
     // Récupérer uniquement les certifications liées à l'utilisateur avec 'user_id'
     $certifications = Certification::with('users', 'formations.modules')

@@ -17,7 +17,7 @@ class CourseController extends Controller
     public function coursesByFormation_formateur($formationId)
     {
         // Récupérer l'ID de l'utilisateur connecté
-        $userId = Auth::guard('api')->user();
+        $userId = Auth::guard('api')->id();
     
         // Récupérer les modules associés à la formation donnée
         $moduleIds = \App\Models\Module::where('formation_id', $formationId)->pluck('id');
@@ -68,7 +68,7 @@ class CourseController extends Controller
 
     public function getCoursesByTeacher()
 {
-    $userId = Auth::guard('api')->user();
+    $userId = Auth::guard('api')->id();
 
     // Recherche des cours où le formateur est assigné
     $courses = Course::where('user_id', $userId)

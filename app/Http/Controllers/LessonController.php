@@ -25,7 +25,7 @@ class LessonController extends Controller
 
     public function Lesson_apprenant()
     {
-        $userId = Auth::guard('api')->user(); // Obtenez l'ID de l'utilisateur connecté
+        $userId = Auth::guard('api')->id(); // Obtenez l'ID de l'utilisateur connecté
     
         // Récupérer les leçons associées aux formations dont l'inscription est payée
         $lessons = Lesson::whereHas('courses.module.formation.inscriptions', function ($query) use ($userId) {
@@ -46,7 +46,7 @@ class LessonController extends Controller
     public function Lesson_formateur()
  
     {
-        $userId = Auth::guard('api')->user(); // Obtenez l'ID de l'utilisateur connecté
+        $userId = Auth::guard('api')->id(); // Obtenez l'ID de l'utilisateur connecté
     
         // Récupérer les leçons associées aux formations auxquelles l'utilisateur est inscrit
         $lessons = Lesson::whereHas('courses', function ($query) use ($userId) {
@@ -80,7 +80,7 @@ class LessonController extends Controller
 
             'course_id' => 'required'
         ]);
-        $userId = Auth::guard('api')->user();
+        $userId = Auth::guard('api')->id();
 
         try {
             // Générer un nom de fichier unique
@@ -167,7 +167,7 @@ class LessonController extends Controller
             'course_id' => 'required|exists:courses,id',
            
         ]);
-        $userId = Auth::guard('api')->user();
+        $userId = Auth::guard('api')->id();
 
 
         $storage = Storage::disk('public');

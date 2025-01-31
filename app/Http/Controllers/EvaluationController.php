@@ -33,7 +33,7 @@ class EvaluationController extends Controller
 // Méthode pour afficher les évaluations d'un utilisateur pour une formation spécifique
 public function show($formation_id, Request $request)
 {
-    $userId = Auth::guard('api')->user(); // Obtenir l'ID de l'utilisateur connecté
+    $userId = Auth::guard('api')->id(); // Obtenir l'ID de l'utilisateur connecté
 
     // Calcul de la moyenne des notes
     $moyenne = \App\Models\Evaluation::where('formation_id', $formation_id)
@@ -85,7 +85,7 @@ public function show($formation_id, Request $request)
    
     public function apprenant_evaluation()
     {
-        $userId = Auth::guard('api')->user();
+        $userId = Auth::guard('api')->id();
 
         $evaluations = Evaluation::where('user_id', $userId)
            

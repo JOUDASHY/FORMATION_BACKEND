@@ -10,7 +10,7 @@ class NotificationController extends Controller
 {
     public function getUnreadNotifications()
     {
-        $userId = Auth::guard('api')->user();
+        $userId = Auth::guard('api')->id(); 
 
         $notifications = Notification::where('user_id', $userId)
                                      ->where('is_read', false)

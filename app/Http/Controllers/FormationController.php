@@ -41,7 +41,7 @@ class FormationController extends Controller
 
     public function Formation_apprenant()
     {
-        $userId = Auth::guard('api')->user(); // Obtenez l'ID de l'utilisateur connecté
+        $userId = Auth::guard('api')->id(); // Obtenez l'ID de l'utilisateur connecté
     
         // Récupérer les formations dont l'utilisateur est inscrit et où l'inscription est payée
         $formations = Formation::whereHas('inscriptions', function ($query) use ($userId) {
@@ -59,7 +59,7 @@ class FormationController extends Controller
     public function Formation_formateur()
     {
         // Récupérer l'ID de l'utilisateur connecté
-        $userId = Auth::guard('api')->user();
+        $userId = Auth::guard('api')->id();
     
         // Récupérer les cours associés à l'utilisateur
         $courses = \App\Models\Course::where('user_id', $userId)->get();

@@ -37,7 +37,7 @@ class InscriptionController extends Controller
 
      public function apprenant_inscription()
      {
-         $userId = Auth::guard('api')->user();
+         $userId = Auth::guard('api')->id();
  
          $inscriptions = Inscription::where("user_id",$userId)->with( 'formations')->get(); 
            

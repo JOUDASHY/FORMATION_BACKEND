@@ -24,7 +24,7 @@ class BroadcastNewPlanning
             ]);
 
             // Envoyer la requête WebSocket
-            $response = Http::post('http://localhost:6001/broadcast', [
+            $response = Http::post(config('app.socket_notif_url', 'http://localhost:3000') . '/broadcast', [
                 'userId' => $apprenant->id,
                 'message' => $messagePrefix,
             ]);
@@ -44,7 +44,7 @@ class BroadcastNewPlanning
         ]);
 
         // Envoyer la requête WebSocket pour le formateur
-        $response = Http::post('http://localhost:6001/broadcast', [
+        $response = Http::post(config('app.socket_notif_url', 'http://localhost:3000') . '/broadcast', [
             'userId' => $event->formateurId,
             'message' => $messagePrefix,
         ]);
