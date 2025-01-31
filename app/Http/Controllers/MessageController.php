@@ -80,7 +80,7 @@ public function markAsRead(Request $request, $id)
     $message = Message::findOrFail($id);
 
     // Vérifiez que seul le destinataire peut marquer un message comme lu
-    if ($message->receiver_id != Auth::id()) {
+    if ($message->receiver_id != Auth::guard('api')->id()) {
         return response()->json(['status' => 'Unauthorized', 'message' => 'You cannot mark this message as read'], 403);
     }
 
