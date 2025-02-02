@@ -116,3 +116,7 @@ Route::get('/coursesByFormation/{formation_id}', [CourseController::class, 'cour
 Route::get('auth/google', [AuthController::class, 'redirectToGoogle']);
 Route::get('auth/google/call-back', [AuthController::class, 'handleGoogleCallback']);
 Route::post('auth/google/token', [AuthController::class, 'handleGoogleToken']);
+
+Route::get('/keep-alive', function () {
+    return response()->json(['status' => 'alive'], 200);
+});
