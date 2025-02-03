@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class ReplyController extends Controller
 {
@@ -35,7 +36,7 @@ class ReplyController extends Controller
             }
 
             $reply = Reply::create([
-                'user_id' => auth()->id(),
+                'user_id' => Auth::guard('api')->id(),
                 'comment_id' => $request->comment_id,
                 'reply_body' => $request->reply_body,
                 'file' => $fileName,

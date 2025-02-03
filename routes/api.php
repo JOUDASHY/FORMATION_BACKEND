@@ -64,6 +64,8 @@ Route::post('updatelesson/{id}',[LessonController::class, "updatelesson"]);
 Route::get('Lesson_apprenant',[LessonController::class, "Lesson_apprenant"]);
 Route::get('Planning_apprenant',[PlanningController::class, "Planning_apprenant"]);
 Route::get('Planning_formateur',[PlanningController::class, "Planning_formateur"]);
+Route::get('Planning_formateur_EDT',[PlanningController::class, "Planning_formateur_EDT"]);
+
 Route::get('Lesson_formateur',[LessonController::class, "Lesson_formateur"]);
 Route::get('Formation_apprenant',[FormationController::class, "Formation_apprenant"]);
 Route::get('Formation_formateur',[FormationController::class, "Formation_formateur"]);

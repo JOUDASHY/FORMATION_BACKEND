@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
@@ -35,7 +36,7 @@ class CommentController extends Controller
             }
 
             $comment = Comment::create([
-                'user_id' => auth()->id(),
+                'user_id' => Auth::guard('api')->id(),
                 'postforum_id' => $request->postforum_id,
                 'comment_body' => $request->comment_body,
                 'file' => $fileName,

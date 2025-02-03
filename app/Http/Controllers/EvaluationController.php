@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Evaluation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class EvaluationController extends Controller
 {
@@ -31,6 +32,7 @@ class EvaluationController extends Controller
 
     // Méthode pour afficher les évaluations d'un utilisateur
 // Méthode pour afficher les évaluations d'un utilisateur pour une formation spécifique
+
 public function show($formation_id, Request $request)
 {
     $userId = Auth::guard('api')->id(); // Obtenir l'ID de l'utilisateur connecté
@@ -39,25 +41,29 @@ public function show($formation_id, Request $request)
     $moyenne = \App\Models\Evaluation::where('formation_id', $formation_id)
         ->where('user_id', $userId)
         ->avg('note');
-        
+
     // Récupérer les évaluations de l'utilisateur pour cette formation
     $evaluations = \App\Models\Evaluation::where('user_id', $userId)
         ->where('formation_id', $formation_id)
         ->with(['course', 'user', 'formation']) // Inclure les relations 'course', 'user', et 'formation'
         ->get();
 
-    // Récupérer le nom de l'utilisateur et le nom de la formation
-    $user = auth()->user(); // Utilisateur connecté
+    // Récupérer l'utilisateur et la formation
+    $user = \App\Models\User::find($userId); // Récupérer l'utilisateur connecté
     $formation = \App\Models\Formation::find($formation_id); // Formation associée
 
-    // Retourner les évaluations, la moyenne, et les informations supplémentaires
+    // Log de débogage
+    Log::debug('Utilisateur connecté :', ['user' => $user]);
+
+    // Vérifier si l'utilisateur existe avant d'accéder à ses propriétés
     return response()->json([
         'evaluations' => $evaluations,
         'moyenne' => $moyenne,
-        'user' => $user->name, // Nom de l'utilisateur
-        'formation' => $formation->name // Nom de la formation
+        'user' => $user ? $user->name : null, // Nom de l'utilisateur
+        'formation' => $formation ? $formation->name : null // Nom de la formation
     ]);
 }
+
 
 
 

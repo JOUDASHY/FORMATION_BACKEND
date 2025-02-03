@@ -53,30 +53,49 @@ class PlanningController extends Controller
         return response()->json($plannings);
     }
 
-    public function Planning_formateur()
-    {
-        $userId = Auth::guard('api')->id();
-    
-        // Récupérer la date d'aujourd'hui
-        $today = now()->toDateString();  // Format 'YYYY-MM-DD'
-    
-        $plannings = Planning::whereHas('courses', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })
-            ->with('courses', 'formations', 'rooms')
-            // Vérifiez si la colonne 'date' est de type 'DATE', sinon ajustez ici
-            ->whereDate('date', '<=', $today)  // Filtrer les plannings à partir d'aujourd'hui
-            ->orderBy('date', 'desc')  // Trier par date, du plus ancien au plus récent
-            ->get();
-    
-        // Si rien n'est retourné, vous pouvez loguer pour comprendre où ça bloque
-        if ($plannings->isEmpty()) {
-            \Log::info('Aucun planning trouvé pour aujourd\'hui et après.');
-        }
-    
-        return response()->json($plannings);
+public function Planning_formateur()
+{
+    $userId = Auth::guard('api')->id();
+
+    // Récupérer la date d'aujourd'hui
+    $today = now()->toDateString();  // Format 'YYYY-MM-DD'
+
+    $plannings = Planning::whereHas('courses', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+        ->with('courses', 'formations', 'rooms')
+        ->whereDate('date', '>=', $today)  // Corrigé : plannings à partir d'aujourd'hui
+        ->orderBy('date', 'asc')  // Trier du plus récent au plus ancien
+        ->get();
+
+    // Log si aucun planning n'est trouvé
+    if ($plannings->isEmpty()) {
+        \Log::info("Aucun planning trouvé à partir d'aujourd'hui pour l'utilisateur ID: {$userId}");
     }
+
+    return response()->json($plannings);
+}
+
     
+    public function Planning_formateur_EDT()
+{
+    $userId = Auth::guard('api')->id();
+
+    $plannings = Planning::whereHas('courses', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+        ->with('courses', 'formations', 'rooms')
+        ->orderBy('date', 'desc') // Trier par date, du plus ancien au plus récent
+        ->get();
+
+    // Log si aucun planning n'est trouvé
+    if ($plannings->isEmpty()) {
+        \Log::info("Aucun planning trouvé pour l'utilisateur ID: {$userId}");
+    }
+
+    return response()->json($plannings);
+}
+
     
 
     public function show($id)

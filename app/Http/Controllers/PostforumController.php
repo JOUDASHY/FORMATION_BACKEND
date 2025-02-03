@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class PostforumController extends Controller
 {
@@ -40,7 +41,7 @@ public function index()
             }
 
             $postforum = Postforum::create([
-                'user_id' => auth()->id(),
+                'user_id' => Auth::guard('api')->id(),
               
                 'body' => $request->body,
                 'file' => $fileName,
