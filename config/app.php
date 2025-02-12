@@ -17,8 +17,8 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
-    'socket_notif_url' => env('SOCKET_NOTIF_URL', 'http://localhost:6001'),
-    'socket_msg_url' => env('SOCKET_MSG_URL', 'http://localhost:3000'),
+    'socket_url' => env('SOCKET_URL', 'http://localhost:6001'),
+    // 'socket_msg_url' => env('SOCKET_MSG_URL', 'http://localhost:3000'),
 
     /*
     |--------------------------------------------------------------------------

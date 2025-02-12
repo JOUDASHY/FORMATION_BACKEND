@@ -52,10 +52,10 @@ class MessageController extends Controller
         ]);
         
         // Récupérer l'URL du WebSocket depuis .env
-        $socketUrl = config('app.socket_msg_url', 'http://localhost:3000');
-        
+        $socketUrl = config('app.socket_url', 'http://localhost:3000') . '/api/messages/broadcast';
+
         // Envoyer le message au serveur WebSocket (si nécessaire)
-        Http::post("$socketUrl/broadcast", [
+        Http::post("$socketUrl", [
             'sender_id'   => $message->sender_id,
             'receiver_id' => $message->receiver_id,
             'message'     => $message->message,

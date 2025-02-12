@@ -22,7 +22,7 @@ class BroadcastNewFormation
 
             // Envoyer une requête HTTP au serveur WebSocket Node.js
         // Envoi de la requête au serveur WebSocket
-$response = Http::post(config('app.socket_notif_url', 'http://localhost:3000') . '/broadcast', [
+$response = Http::post(config('app.socket_url', 'http://localhost:3000') . '/api/notifications/broadcast', [
     'userId' => $apprenant->id,
     'message' => "Une nouvelle formation intitulée {$event->formationTitle} est maintenant disponible pour inscription.",
 ]);
